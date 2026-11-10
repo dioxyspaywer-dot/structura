@@ -1,0 +1,1 @@
+const fs=require('fs');const path=require('path');fs.mkdirSync('www/lib',{recursive:true});fs.copyFileSync(require.resolve('three/build/three.module.js'),'www/lib/three.module.min.js');fs.copyFileSync(require.resolve('three/examples/jsm/controls/OrbitControls.js'),'www/lib/OrbitControls.js');

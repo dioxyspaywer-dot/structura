@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101827"><title>Structura Studio V3</title>
+<script type="importmap">{"imports":{"three":"./lib/three.module.min.js"}}</script>
+<style>
+:root{--bg:#101827;--panel:#182438;--panel2:#202f46;--line:#30445f;--text:#edf3fb;--muted:#9aabc0;--accent:#5ee0c0;--blue:#66a8ff;--orange:#ffb454;--shadow:0 14px 40px #050b15aa}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+body{display:grid;grid-template-rows:58px 1fr;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+button,input,select,textarea{font:inherit}button{cursor:pointer;color:inherit}
+.top{display:flex;align-items:center;gap:12px;padding:0 15px;background:#141f30;border-bottom:1px solid var(--line);z-index:3}
+.brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:17px;letter-spacing:.2px;margin-right:auto}.brand img{width:34px;height:34px;border-radius:11px}
+.brand small{display:block;color:var(--muted);font-size:9px;font-weight:600;letter-spacing:1.5px}
+.mode{display:flex;background:#0d1522;padding:4px;border:1px solid var(--line);border-radius:13px}.mode button{border:0;background:none;color:var(--muted);padding:8px 12px;border-radius:9px;font-size:12px;font-weight:700}.mode button.active{background:var(--accent);color:#09231e}
+.iconbtn{border:1px solid var(--line);background:var(--panel);width:38px;height:38px;border-radius:11px;display:grid;place-items:center}.iconbtn svg{width:19px;height:19px}
+main{min-height:0;position:relative;display:grid;grid-template-columns:64px minmax(0,1fr) 290px}
+.toolbar{background:#141f30;border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 5px;overflow:auto}
+.tool{width:52px;min-height:52px;border:1px solid transparent;border-radius:13px;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px}
+.tool svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.tool.active{background:#203a4b;color:var(--accent);border-color:#35616a}.tool:active{transform:scale(.96)}
+.stage{position:relative;min-width:0;min-height:0;background:radial-gradient(ellipse at 50% 40%,#1b2a40,#111b2a 72%);overflow:hidden}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#circuit{display:none;touch-action:none}
+.stagebar{position:absolute;z-index:2;top:12px;left:12px;right:12px;display:flex;gap:7px;align-items:center;pointer-events:none}.stagebar>*{pointer-events:auto}
+.pill{background:#121e2dcc;border:1px solid var(--line);border-radius:10px;padding:7px 10px;color:var(--muted);font-size:11px;backdrop-filter:blur(12px)}
+.stage-actions{margin-left:auto;display:flex;gap:6px}.stage-actions button{background:#17253a;border:1px solid var(--line);border-radius:10px;width:36px;height:34px;display:grid;place-items:center}.stage-actions svg{width:17px;height:17px}
+.inspector{background:#141f30;border-left:1px solid var(--line);padding:15px;overflow:auto;min-width:0}
+.panel-title{font-size:13px;font-weight:800;letter-spacing:.4px;margin:0 0 12px}.sub{font-size:11px;color:var(--muted);margin:0 0 12px}
+.field{margin:0 0 11px}.field label{display:block;color:var(--muted);font-size:11px;margin-bottom:5px}.field input,.field select,.field textarea{width:100%;background:#0e1827;border:1px solid var(--line);border-radius:9px;color:var(--text);padding:9px 10px;min-height:38px;outline:none}.field input:focus,.field textarea:focus{border-color:var(--accent)}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.action{border:1px solid var(--line);background:var(--panel2);border-radius:10px;padding:9px 11px;font-weight:650;font-size:12px}.action.primary{background:var(--accent);color:#09231e;border-color:var(--accent)}.action.danger{color:#ff9292}.actionrow{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}.actionrow>*{flex:1}
+.divider{height:1px;background:var(--line);margin:15px 0}
+.catalog-search{width:100%;background:#0e1827;border:1px solid var(--line);border-radius:10px;color:var(--text);padding:10px;margin-bottom:9px}
+.category-strip{display:flex;gap:6px;overflow:auto;padding-bottom:8px}.category-strip button{white-space:nowrap;background:#0e1827;border:1px solid var(--line);color:var(--muted);border-radius:18px;padding:6px 10px;font-size:11px}.category-strip button.active{background:#244c4d;border-color:#3c8c80;color:var(--accent)}
+.component-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.comp{border:1px solid var(--line);background:linear-gradient(145deg,#24344b,#18263a);border-radius:12px;padding:9px 7px;text-align:center;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;min-height:104px}
+.comp .preview{height:52px;width:100%;display:grid;place-items:center}.comp svg{width:74px;height:48px;overflow:visible}.comp strong{font-size:10px;line-height:1.2}.comp small{color:var(--muted);font-size:9px}
+.empty{border:1px dashed #40546d;border-radius:12px;padding:18px;text-align:center;color:var(--muted);font-size:12px}
+#dock{display:none;background:#141f30;border-top:1px solid var(--line);padding:7px;gap:6px;overflow-x:auto}
+.dockbtn{flex:1;min-width:52px;border:0;background:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px}.dockbtn svg{width:20px;height:20px}.dockbtn.active{color:var(--accent)}
+#sheet{position:absolute;z-index:6;left:50%;top:50%;transform:translate(-50%,-46%) scale(.98);opacity:0;pointer-events:none;width:min(520px,calc(100% - 28px));max-height:82%;overflow:auto;background:#18263a;border:1px solid #3a506b;border-radius:18px;padding:18px;box-shadow:var(--shadow);transition:.18s}
+#sheet.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+.sheet-head{display:flex;align-items:center;margin-bottom:14px}.sheet-head h3{font-size:15px;margin:0 auto 0 0}.sheet-head button{background:none;border:0;font-size:21px;color:var(--muted)}
+#toast{position:fixed;z-index:12;bottom:82px;left:50%;transform:translateX(-50%);background:#d9fff5;color:#10332c;padding:9px 14px;border-radius:30px;font-weight:700;font-size:12px;opacity:0;transition:.2s;pointer-events:none;box-shadow:var(--shadow)}
+.wire-colors{display:flex;gap:7px;flex-wrap:wrap}.wire-color{width:28px;height:28px;border:3px solid #fff5;border-radius:50%;padding:0}.wire-color.active{outline:2px solid var(--accent);outline-offset:2px}
+@media(max-width:850px){main{grid-template-columns:54px minmax(0,1fr)}.inspector{display:none}.toolbar{padding:8px 2px}.tool{width:46px;min-height:48px;font-size:9px}.top{padding:0 9px}.brand{font-size:15px}.mode button{padding:7px 9px;font-size:11px}}
+@media(max-width:540px){body{grid-template-rows:54px 1fr 62px}.top{gap:7px}.brand img{width:30px;height:30px}.brand small{font-size:8px}.mode button{padding:7px 8px}.top .iconbtn{width:34px;height:34px}main{grid-template-columns:1fr}.toolbar{display:none}#dock{display:flex}.stagebar{top:8px;left:8px;right:8px}.pill{padding:6px 8px;font-size:10px}}
+</style></head>
+<body>
+<header class="top">
+ <div class="brand"><img src="./icon.png" alt="Logo Structura"><span>STRUCTURA<small>STUDIO · V3</small></span></div>
+ <div class="mode"><button class="active" data-mode="3d">Atelier 3D</button><button data-mode="circuit">Électronique</button></div>
+ <button class="iconbtn" id="saveBtn" title="Enregistrer" aria-label="Enregistrer"><svg viewBox="0 0 24 24"><path d="M5 3h12l4 4v14H3V3zM7 3v6h10V3M7 21v-7h10v7"/></svg></button>
+ <button class="iconbtn" id="menuBtn" title="Projet" aria-label="Projet"><svg viewBox="0 0 24 24"><circle cx="5" cy="6" r="1"/><circle cx="5" cy="12" r="1"/><circle cx="5" cy="18" r="1"/><path d="M9 6h10M9 12h10M9 18h10"/></svg></button>
+</header>
+<main>
+ <nav class="toolbar" id="tools"></nav>
+ <section class="stage">
+  <div class="stagebar"><span class="pill" id="stageLabel">SCÈNE 3D · UNITÉS DE CONCEPTION</span><span class="pill" id="autosave">● Sauvegarde auto</span><div class="stage-actions">
+   <button id="viewBtn" title="Vue initiale"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10M9 20v-6h6v6"/></svg></button>
+   <button id="gridBtn" title="Grille"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM4 10h16M4 16h16M10 4v16M16 4v16"/></svg></button>
+   <button id="zoomBtn" title="Zoom"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5M10.5 7v7M7 10.5h7"/></svg></button>
+  </div></div>
+  <canvas id="view3d"></canvas><canvas id="circuit"></canvas>
+ </section>
+ <aside class="inspector" id="inspector"><h3 class="panel-title">ESPACE DE TRAVAIL</h3><p class="sub">Sélectionne un élément ou ajoute une pièce à ta scène.</p><div id="inspectorContent"></div></aside>
+</main>
+<nav id="dock"></nav>
+<section id="sheet"><div class="sheet-head"><h3 id="sheetTitle">Projet</h3><button id="closeSheet">×</button></div><div id="sheetBody"></div></section>
+<div id="toast"></div>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from './lib/OrbitControls.js';
+import {CAT} from './catalog.js';
+const $=s=>document.querySelector(s), store={get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{toast('Stockage saturé')}}};
+const toast=t=>{const e=$('#toast');e.textContent=t;e.style.opacity=1;clearTimeout(toast.timer);toast.timer=setTimeout(()=>e.style.opacity=0,1900)};
+const svg=(name)=>({select:'<path d="M4 4l7 16 2-7 7-2z"/>',move:'<path d="M12 3v18M3 12h18M8 7l4-4 4 4M8 17l4 4 4-4M7 8l-4 4 4 4M17 8l4 4-4 4"/>',add:'<path d="M12 5v14M5 12h14"/>',measure:'<path d="M3 17 17 3l4 4L7 21zM7 13l2 2M11 9l2 2M15 5l2 2"/>',wire:'<path d="M4 7h4a4 4 0 0 1 4 4v2a4 4 0 0 0 4 4h4"/>',delete:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3"/>',undo:'<path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-2"/>',settings:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 1.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.2h-2.6v-.2a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1-1.8-1.8.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H6v-2.6h.2a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1 1.8-1.8.1.1a1.7 1.7 0 0 0 1.9.3 1.7 1.7 0 0 0 1-1.5V5h2.6v.2a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1 1.8 1.8-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1h.2v2.6h-.2a1.7 1.7 0 0 0-1.5 1z"/>',duplicate:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>',save:'<path d="M5 3h12l4 4v14H3V3zM7 3v6h10V3M7 21v-7h10v7"/>',cube:'<path d="m12 2 9 5v10l-9 5-9-5V7zM3 7l9 5 9-5M12 12v10"/>',circuit:'<path d="M4 7h4V4h4v6h4V7h4M4 17h4v3h4v-6h4v3h4"/>',layers:'<path d="m12 3 9 5-9 5-9-5zM3 12l9 5 9-5M3 16l9 5 9-5"/>',rotate:'<path d="M20 7v5h-5M4 17v-5h5M5.6 9A7 7 0 0 1 18 6l2 6M4 12l2 6a7 7 0 0 0 12-3"/>',cut:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="m8.1 8.1 11.8 11.8M8.1 15.9 20 4"/>',ai:'<path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1m8.6 8.6 2.1 2.1m0-12.8-2.1 2.1m-8.6 8.6-2.1 2.1"/><circle cx="12" cy="12" r="4"/>',download:'<path d="M12 3v12m-5-5 5 5 5-5M4 20h16"/>',box:'<path d="m12 2 9 5v10l-9 5-9-5V7zM3 7l9 5 9-5M12 12v10"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M19 13a7 7 0 0 0 0-2l2-1-2-4-2 1a7 7 0 0 0-2-1l-.3-2h-5L9 6a7 7 0 0 0-2 1L5 6l-2 4 2 1a7 7 0 0 0 0 2l-2 1 2 4 2-1a7 7 0 0 0 2 1l.7 2h5L15 18a7 7 0 0 0 2-1l2 1 2-4z"/>'})[name]||'<circle cx="12" cy="12" r="8"/>';
+const icon=(name)=>`<svg viewBox="0 0 24 24" aria-hidden="true">${svg(name)}</svg>`;
+let mode='3d',tool='select',selected=null,gridOn=true,snap=true,wireColor='#e74c3c',history=[],cHistory=[],drag3=null,drag2=null,linkFrom=null,measureStart=null,dragCandidate=null,dragOrigin=null,dragMoved=false;
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x182538);
+const camera=new THREE.PerspectiveCamera(48,1,.1,1000);camera.position.set(7,6,8);
+const renderer=new THREE.WebGLRenderer({canvas:$('#view3d'),antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.target.set(0,1,0);
+scene.add(new THREE.HemisphereLight(0xe9f5ff,0x34445c,2));
+const sun=new THREE.DirectionalLight(0xffffff,2.1);sun.position.set(7,12,8);sun.castShadow=true;scene.add(sun);
+const fill=new THREE.DirectionalLight(0x8ebdff,.7);fill.position.set(-7,4,-5);scene.add(fill);
+const grid=new THREE.GridHelper(30,60,0x68819f,0x34465e);scene.add(grid);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(100,100),new THREE.MeshStandardMaterial({color:0x182538,roughness:.95}));ground.rotation.x=-Math.PI/2;ground.position.y=-.015;ground.receiveShadow=true;scene.add(ground);
+const world=new THREE.Group();scene.add(world);let uid=1;
+const mat=(c,metal=.2,rough=.5)=>new THREE.MeshStandardMaterial({color:c,metalness:metal,roughness:rough});
+const addMesh=(g,m,x,y,z)=>{const o=new THREE.Mesh(g,m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;return o};
+function partGeometry(type){
+ const g=new THREE.Group(), metal=mat(0xb7c4d2,.82,.25), dark=mat(0x202b38,.45,.35), green=mat(0x168b63,.25,.48), ceramic=mat(0xd9c6a0,.05,.75);
+ const cyl=(r,h,m,x,y,z,rad=32)=>g.add(addMesh(new THREE.CylinderGeometry(r,r,h,rad),m,x,y,z));
+ const box=(x,y,z,m,px,py,pz)=>g.add(addMesh(new THREE.BoxGeometry(x,y,z),m,px,py,pz));
+ const torus=(r,t,m,x,y,z)=>g.add(addMesh(new THREE.TorusGeometry(r,t,10,32),m,x,y,z));
+ if(type==='resistor'){cyl(.16,.55,ceramic,0,.48,0);g.children[0].rotation.z=Math.PI/2;for(let i=-2;i<=2;i++)box(.31,.04,.32,mat(['#9b6639','#b52d24','#d7a52d','#6a4c93','#c5b9a2'][Math.abs(i)%5]),0,.32+i*.09,0);cyl(.025,1.3,metal,0,.48,.0,12);g.children[g.children.length-1].rotation.z=Math.PI/2}
+ else if(type==='capacitor'){cyl(.25,.62,mat(0x263b5e,.15,.3),0,.42,0);cyl(.255,.04,mat(0x9aa9b8,.7,.22),0,.75,0);cyl(.018,.35,metal,-.1,.1,0,12);cyl(.018,.35,metal,.1,.1,0,12)}
+ else if(type==='led'){cyl(.2,.24,metal,0,.25,0);g.add(addMesh(new THREE.SphereGeometry(.2,24,16,0,Math.PI*2,0,Math.PI/2),mat(0xff3e55,.05,.2),0,.47,0));cyl(.018,.65,metal,-.09,-.04,0,12);cyl(.018,.65,metal,.09,-.04,0,12)}
+ else if(type==='diode'){cyl(.13,.5,mat(0x20252c,.15,.4),0,.35,0);g.children[0].rotation.z=Math.PI/2;box(.04,.16,.28,metal,0,.35,.15);cyl(.018,.7,metal,0,.35,0,12);g.children[g.children.length-1].rotation.z=Math.PI/2}
+ else if(type==='motor'){cyl(.36,.8,mat(0x8797a8,.8,.28),0,.55,0);cyl(.19,.12,mat(0x34495e,.7,.3),0,1.02,0);cyl(.055,.65,metal,0,1.35,0,20);for(let i=0;i<4;i++){let a=i*Math.PI/2;box(.12,.45,.12,mat(0x9daab7,.75),Math.cos(a)*.3,.55,Math.sin(a)*.3)}}
+ else if(type==='battery'){box(.6,.95,.38,mat(0x2f855a,.3,.35),0,.5,0);cyl(.07,.09,metal,-.16,1.02,0);cyl(.07,.09,mat(0xd34b4b,.4),.16,1.02,0);box(.25,.24,.02,mat(0xe4eee8,.05),0,.53,.2)}
+ else if(type==='gear'){cyl(.43,.18,metal,0,.28,0,48);torus(.3,.07,mat(0x8395a9,.85,.25),0,.4,0);g.children[g.children.length-1].rotation.x=Math.PI/2;cyl(.1,.24,dark,0,.35,0);for(let i=0;i<12;i++){let a=i*Math.PI/6;box(.16,.18,.2,metal,Math.cos(a)*.47,.28,Math.sin(a)*.47)}}
+ else if(type==='screw'){cyl(.14,.18,metal,0,.16,0);box(.055,.02,.2,dark,0,.26,0);cyl(.045,1,metal,0,-.35,0,16);for(let i=0;i<7;i++){torus(.047,.012,metal,0,-.65+i*.09,0);g.children[g.children.length-1].rotation.x=Math.PI/2}}
+ else if(type==='bearing'){torus(.42,.09,metal,0,.35,0);g.children[g.children.length-1].rotation.x=Math.PI/2;torus(.22,.07,mat(0x778b9f,.85,.2),0,.35,0);g.children[g.children.length-1].rotation.x=Math.PI/2;for(let i=0;i<8;i++){let a=i*Math.PI/4;g.add(addMesh(new THREE.SphereGeometry(.055,16,12),mat(0xcbd6e0,.9,.2),Math.cos(a)*.32,.35,Math.sin(a)*.32))}}
+ else if(type==='nut'){g.add(addMesh(new THREE.CylinderGeometry(.34,.34,.2,6),metal,0,.2,0));cyl(.16,.23,dark,0,.2,0,24);torus(.19,.025,metal,0,.31,0);g.children[g.children.length-1].rotation.x=Math.PI/2}
+ else if(type==='spring'){const pts=[];for(let i=0;i<=100;i++){let t=i/100*8*Math.PI;pts.push(new THREE.Vector3(Math.cos(t)*.2,i/100*.9,Math.sin(t)*.2))}const curve=new THREE.CatmullRomCurve3(pts);g.add(addMesh(new THREE.TubeGeometry(curve,180,.035,8,false),metal,0,0,0))}
+ else if(type==='fan'){cyl(.34,.12,dark,0,.12,0);cyl(.1,.18,metal,0,.23,0);for(let i=0;i<5;i++){let a=i*Math.PI*2/5;let blade=addMesh(new THREE.BoxGeometry(.18,.035,.45),mat(0x6e9dbb,.55,.28),Math.cos(a)*.2,.2,Math.sin(a)*.2);blade.rotation.y=-a;g.add(blade)}}
+ else if(type==='pcb'){box(1.6,.08,1.1,green,0,.04,0);box(.48,.16,.42,dark,0,.16,0);for(let i=0;i<8;i++){box(.045,.05,.06,metal,-.5+i*.14,.1,.48);box(.045,.05,.06,metal,-.5+i*.14,.1,-.48)}}
+ else if(type==='switch'){box(.48,.22,.42,dark,0,.12,0);cyl(.045,.5,metal,0,.45,0,16);g.children[g.children.length-1].rotation.z=-.35;g.add(addMesh(new THREE.SphereGeometry(.09,16,12),mat(0xd8e3ec,.5,.25),-.16,.65,0))}
+ else if(type==='relay'){box(.7,.45,.5,mat(0x263c59,.25,.35),0,.25,0);for(let i=0;i<4;i++)cyl(.025,.22,metal,-.22+i*.14,.0,.18,12)}
+ else if(type==='plate'){box(2,.12,1.4,mat(0x4d8b71,.35,.4),0,.08,0);for(let x of [-.78,.78])for(let z of [-.48,.48]){cyl(.09,.125,mat(0x182538,.1,.8),x,.08,z,24)}}
+ else if(type==='pipe'){cyl(.25,1.4,mat(0x8ca5bd,.78,.25),0,.7,0,40);g.children[0].material.side=THREE.DoubleSide;g.children[0].geometry=new THREE.CylinderGeometry(.28,.28,1.4,40,1,true);cyl(.28,.05,metal,0,.04,0);cyl(.28,.05,metal,0,1.36,0)}
+ else if(type==='bracket'){box(1.1,.12,.18,metal,0,.06,0);box(.15,.75,.18,metal,-.48,.42,0);for(let x of [-.48,.4])cyl(.08,.13,dark,x,.13,0,24)}
+ else if(type==='box'){box(1,1,1,mat(0x5686ad,.35,.4),0,.5,0);box(.8,.025,.8,mat(0x91bad2,.35),0,1.02,0)}
+ else if(type==='cylinder'){cyl(.5,1,mat(0x7995ad,.55,.3),0,.5,0)}
+ else if(type==='sphere'){g.add(addMesh(new THREE.SphereGeometry(.5,32,24),mat(0x4e9bb8,.3,.25),0,.5,0))}
+ else if(type==='beam'){box(2,.16,.18,mat(0x91a5b8,.7,.3),0,.08,0)}
+ else {box(1,1,1,mat(0x4d9eae,.35,.4),0,.5,0)}
+ g.userData={type,id:uid++,label:type,is3d:true};return g;
+}
+const compDefs=[
+ ['Structure','plate','Plaque perforée','Support et trous de fixation'],['Structure','box','Boîtier','Enveloppe rectangulaire'],['Structure','cylinder','Tube plein','Corps cylindrique'],['Structure','pipe','Tube creux','Paroi et ouverture visibles'],['Structure','beam','Poutre','Profilé droit'],['Structure','bracket','Équerre','Support en L'],['Électronique','pcb','Carte électronique','PCB avec composants'],['Électronique','switch','Interrupteur','Levier mécanique'],['Électronique','relay','Relais','Boîtier électromécanique'],['Mécanique','gear','Engrenage','Roue dentée'],['Mécanique','bearing','Roulement','Bague et billes'],['Mécanique','nut','Écrou','Écrou hexagonal'],['Mécanique','screw','Vis','Tête et filetage'],['Mécanique','spring','Ressort','Ressort hélicoïdal'],['Mécanique','motor','Moteur DC','Moteur avec arbre'],['Mécanique','fan','Ventilateur','Rotor à pales'],['Électronique','resistor','Résistance','Composant axial'],['Électronique','capacitor','Condensateur','Condensateur polarisé'],['Électronique','led','LED','Diode électroluminescente'],['Électronique','diode','Diode','Diode axiale'],['Électronique','battery','Batterie','Bloc avec bornes'],['Formes','sphere','Sphère','Volume de base']];
+const labels=Object.fromEntries(compDefs.map(x=>[x[1],x[2]]));
+function addPart(type,pos){const o=partGeometry(type);if(pos)o.position.copy(pos);else o.position.set((Math.random()-.5)*1.5,0,(Math.random()-.5)*1.5);world.add(o);select3(o);autosave();return o}
+function select3(o){if(selected?.userData?.is3d)selected.traverse(c=>{if(c.isMesh)c.material.emissive?.setHex(0)});selected=o;if(o?.userData?.is3d){o.traverse(c=>{if(c.isMesh&&c.material.emissive)c.material.emissive.setHex(0x183b35)});renderInspector()}else renderInspector()}
+function snapshot3(){return world.children.map(o=>({type:o.userData.type,p:o.position.toArray(),r:o.rotation.toArray(),s:o.scale.toArray(),label:o.userData.label}))}
+function saveHist(){history.push(JSON.stringify(snapshot3()));if(history.length>50)history.shift()}
+function load3(a){world.clear();selected=null;a.forEach(x=>{let o=partGeometry(x.type);o.position.fromArray(x.p);o.rotation.fromArray(x.r);o.scale.fromArray(x.s);o.userData.label=x.label;world.add(o)});renderInspector();autosave()}
+function undo(){if(mode==='3d'){if(!history.length)return toast('Aucune action à annuler');load3(JSON.parse(history.pop()))}else{if(!cHistory.length)return toast('Aucune action à annuler');loadCircuit(JSON.parse(cHistory.pop()))}}
+function duplicate(){if(!selected?.userData?.is3d)return toast('Sélectionne une pièce');saveHist();let o=partGeometry(selected.userData.type);o.position.copy(selected.position).add(new THREE.Vector3(.5,0,.5));o.rotation.copy(selected.rotation);o.scale.copy(selected.scale);world.add(o);select3(o);autosave()}
+function deleteSelected(){if(mode==='3d'){if(!selected?.userData?.is3d)return;saveHist();world.remove(selected);selected=null;renderInspector();autosave()}else if(selected?.id){cHistory.push(circuitJSON());parts=parts.filter(p=>p.id!==selected.id);wires=wires.filter(w=>w.a!==selected.id&&w.b!==selected.id);selected=null;drawCircuit();renderInspector();autosave()}}
+function rayPick(e){const rect=renderer.domElement.getBoundingClientRect(),p=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1),r=new THREE.Raycaster();r.setFromCamera(p,camera);const hits=r.intersectObjects(world.children,true);return hits.length?hits[0].object.parent:null}
+renderer.domElement.addEventListener('pointerdown',e=>{if(mode!=='3d')return;const o=rayPick(e);if(tool==='add'){return}if(tool==='measure'&&o){if(!measureStart){measureStart=o;toast('Sélectionne le second point à mesurer')}else{const d=measureStart.position.distanceTo(o.position);toast('Distance entre les pièces : '+d.toFixed(2)+' unités');measureStart=null}return}if(tool==='delete'&&o){saveHist();world.remove(o);selected=null;renderInspector();autosave();return}if(tool==='move'&&o){saveHist();select3(o);drag3={obj:o,x:e.clientX,y:e.clientY};controls.enabled=false;return}if(tool==='select')select3(o)});
+renderer.domElement.addEventListener('pointermove',e=>{if(drag3){drag3.obj.position.x+=(e.clientX-drag3.x)*.012;drag3.obj.position.z+=(e.clientY-drag3.y)*.012;drag3.x=e.clientX;drag3.y=e.clientY}});
+addEventListener('pointerup',()=>{if(drag3){drag3=null;controls.enabled=true;autosave()}});
+let circuit={parts:[],wires:[]},nextId=1;
+const cv=$('#circuit'),ctx=cv.getContext('2d');
+const ctype={resistor:['R','Résistance','resistor'],capacitor:['C','Condensateur','capacitor'],led:['D','LED','led'],diode:['D','Diode','diode'],battery:['V','Batterie','battery'],switch:['SW','Interrupteur','switch'],motor:['M','Moteur','motor'],ground:['GND','Masse','ground'],ic:['U','Circuit intégré','ic'],sensor:['S','Capteur','sensor']};
+function circuitJSON(){return JSON.stringify({parts:circuit.parts,wires:circuit.wires,nextId})}
+function saveCircuitHist(){cHistory.push(circuitJSON());if(cHistory.length>50)cHistory.shift()}
+function loadCircuit(o){circuit=o;nextId=o.nextId||1;selected=null;drawCircuit();renderInspector();autosave()}
+const palette=['#e74c3c','#2878e8','#f1c40f','#27ae60','#f4f6f7','#171c24','#ed8a27','#b76bd4'];
+function drawCircuit(){const w=cv.clientWidth,h=cv.clientHeight;ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);ctx.fillStyle='#101b2a';ctx.fillRect(0,0,w,h);ctx.strokeStyle='#273a51';ctx.lineWidth=1;for(let x=0;x<w;x+=24){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke()}for(let y=0;y<h;y+=24){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke()}
+ const get=id=>circuit.parts.find(p=>p.id===id);
+ circuit.wires.forEach(wire=>{let a=get(wire.a),b=get(wire.b);if(!a||!b)return;ctx.strokeStyle=wire.color;ctx.lineWidth=3;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(a.x+28,a.y);ctx.lineTo((a.x+b.x)/2,a.y);ctx.lineTo((a.x+b.x)/2,b.y);ctx.lineTo(b.x-28,b.y);ctx.stroke();[a,b].forEach(p=>{ctx.fillStyle=wire.color;ctx.beginPath();ctx.arc(p.x+(p===a?28:-28),p.y,4,0,Math.PI*2);ctx.fill()})});
+ circuit.parts.forEach(p=>{const active=selected?.id===p.id;ctx.save();ctx.translate(p.x,p.y);ctx.strokeStyle=active?'#5ee0c0':'#d5e1ee';ctx.fillStyle='#1a2b41';ctx.lineWidth=active?2.5:1.5;
+ if(p.type==='resistor'){ctx.beginPath();ctx.moveTo(-34,0);ctx.lineTo(-20,0);ctx.lineTo(-16,-10);ctx.lineTo(-8,10);ctx.lineTo(0,-10);ctx.lineTo(8,10);ctx.lineTo(16,-10);ctx.lineTo(20,0);ctx.lineTo(34,0);ctx.stroke()}
+ else if(p.type==='capacitor'){ctx.beginPath();ctx.moveTo(-34,0);ctx.lineTo(-5,0);ctx.moveTo(-5,-15);ctx.lineTo(-5,15);ctx.moveTo(5,-15);ctx.lineTo(5,15);ctx.moveTo(5,0);ctx.lineTo(34,0);ctx.stroke()}
+ else if(p.type==='led'||p.type==='diode'){ctx.beginPath();ctx.moveTo(-34,0);ctx.lineTo(-12,0);ctx.lineTo(12,-13);ctx.lineTo(12,13);ctx.closePath();ctx.moveTo(15,-15);ctx.lineTo(15,15);ctx.moveTo(15,0);ctx.lineTo(34,0);ctx.stroke();if(p.type==='led'){ctx.beginPath();ctx.moveTo(0,-19);ctx.lineTo(8,-27);ctx.moveTo(8,-27);ctx.lineTo(6,-20);ctx.moveTo(8,-27);ctx.lineTo(1,-26);ctx.stroke()}}
+ else if(p.type==='battery'){ctx.beginPath();ctx.moveTo(-34,0);ctx.lineTo(-9,0);ctx.moveTo(-9,-14);ctx.lineTo(-9,14);ctx.moveTo(3,-8);ctx.lineTo(3,8);ctx.moveTo(3,0);ctx.lineTo(34,0);ctx.stroke()}
+ else if(p.type==='ground'){ctx.beginPath();ctx.moveTo(0,-14);ctx.lineTo(0,0);ctx.moveTo(-16,0);ctx.lineTo(16,0);ctx.moveTo(-10,6);ctx.lineTo(10,6);ctx.moveTo(-4,12);ctx.lineTo(4,12);ctx.stroke()}
+ else{ctx.beginPath();ctx.roundRect(-25,-16,50,32,5);ctx.fill();ctx.stroke();ctx.fillStyle='#eaf2fb';ctx.font='bold 12px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(p.type==='switch'?'o/ o':p.type==='motor'?'M':p.type==='sensor'?'S':'U',0,0)}
+ ctx.restore();ctx.fillStyle='#eaf2fb';ctx.font='11px system-ui';ctx.textAlign='center';ctx.fillText(p.label||ctype[p.type]?.[1]||p.type,p.x,p.y+34);
+ if(!['ground'].includes(p.type)){[-34,34].forEach(dx=>{ctx.fillStyle='#dce5ef';ctx.beginPath();ctx.arc(p.x+dx,p.y,3.5,0,Math.PI*2);ctx.fill()})}
+ })}
+function pos2(e){const r=cv.getBoundingClientRect();return[e.clientX-r.left,e.clientY-r.top]}
+function hit2(x,y){return [...circuit.parts].reverse().find(p=>Math.abs(x-p.x)<38&&Math.abs(y-p.y)<28)}
+cv.addEventListener('pointerdown',e=>{const [x,y]=pos2(e),p=hit2(x,y);if(tool==='wire'){if(p){if(!linkFrom){linkFrom=p.id;toast('Choisis le second composant')}else if(linkFrom!==p.id){saveCircuitHist();circuit.wires.push({a:linkFrom,b:p.id,color:wireColor});linkFrom=null;drawCircuit();autosave()}}return}
+ if(tool==='delete'&&p){saveCircuitHist();circuit.parts=circuit.parts.filter(q=>q!==p);circuit.wires=circuit.wires.filter(w=>w.a!==p.id&&w.b!==p.id);drawCircuit();autosave();return}
+ if(tool==='move'&&p){saveCircuitHist();selected=p;drag2=p;renderInspector();return}
+ if(tool==='select'){selected=p;renderInspector();drawCircuit();return}
+ if(tool==='add'&&window.pendingCircuitType){saveCircuitHist();circuit.parts.push({id:nextId++,type:window.pendingCircuitType,x:Math.round(x/24)*24,y:Math.round(y/24)*24,label:window.pendingCircuitLabel||ctype[window.pendingCircuitType]?.[1]});window.pendingCircuitType=null;window.pendingCircuitLabel=null;drawCircuit();autosave()}
+});
+cv.addEventListener('pointermove',e=>{if(drag2){const [x,y]=pos2(e);drag2.x=x;drag2.y=y;drawCircuit()}});
+addEventListener('pointerup',()=>{if(drag2){drag2=null;autosave()}});
+function resize(){const el=$('.stage'),w=el.clientWidth,h=el.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();cv.width=w*devicePixelRatio;cv.height=h*devicePixelRatio;drawCircuit()}
+new ResizeObserver(resize).observe($('.stage'));
+renderer.setAnimationLoop(()=>{if(mode==='3d'){controls.update();renderer.render(scene,camera)}});
+function autosave(){const payload={version:3,mode,scene:snapshot3(),circuit};store.set('structura.v3.project',JSON.stringify(payload));$('#autosave').textContent='● Enregistré';}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)autosave()});window.addEventListener('beforeunload',autosave);
+function renderInspector(){const box=$('#inspectorContent');box.innerHTML='';
+ if(mode==='3d'&&selected?.userData?.is3d){const o=selected;box.innerHTML=`<h3 class="panel-title">${labels[o.userData.type]||o.userData.type}</h3><p class="sub">Objet sélectionné · ID ${o.userData.id}</p><div class="fields">${[['X',o.position.x,'p'],['Y',o.position.y,'p'],['Z',o.position.z,'p'],['Échelle X',o.scale.x,'s'],['Échelle Y',o.scale.y,'s'],['Échelle Z',o.scale.z,'s']].map(([n,v,k],i)=>`<div class="field"><label>${n}</label><input data-i="${i}" type="number" step=".1" value="${v.toFixed(2)}"></div>`).join('')}</div><div class="field"><label>Rotation Y (degrés)</label><input id="rot" type="number" value="${Math.round(o.rotation.y*180/Math.PI)}"></div><div class="actionrow"><button class="action" id="dupe">Dupliquer</button><button class="action danger" id="remove">Supprimer</button></div>`;
+ box.querySelectorAll('[data-i]').forEach(i=>i.onchange=()=>{let n=+i.value,j=+i.dataset.i;if(j<3)o.position.setComponent(j,n);else o.scale.setComponent(j-3,Math.max(.01,n));autosave()});$('#rot').onchange=e=>{o.rotation.y=+e.target.value*Math.PI/180;autosave()};$('#dupe').onclick=duplicate;$('#remove').onclick=deleteSelected;return}
+ if(mode==='circuit'&&selected?.id){const p=selected;box.innerHTML=`<h3 class="panel-title">${p.label}</h3><p class="sub">Composant du schéma · repère ${p.id}</p><div class="fields"><div class="field"><label>Position X</label><input id="px" type="number" value="${p.x}"></div><div class="field"><label>Position Y</label><input id="py" type="number" value="${p.y}"></div></div><div class="actionrow"><button class="action danger" id="remove">Supprimer</button></div>`;$('#px').onchange=e=>{p.x=+e.target.value;drawCircuit();autosave()};$('#py').onchange=e=>{p.y=+e.target.value;drawCircuit();autosave()};$('#remove').onclick=deleteSelected;return}
+ box.innerHTML=`<div class="empty"><div style="font-size:26px;margin-bottom:8px">✦</div><strong>Aucun élément sélectionné</strong><p>Choisis un outil à gauche, puis ajoute une pièce depuis la bibliothèque.</p><button class="action primary" id="openCatalog">Ouvrir la bibliothèque</button></div>`;$('#openCatalog').onclick=()=>openCatalog()}
+const tools3=[['select','Sélection'],['move','Déplacer'],['add','Bibliothèque'],['measure','Mesurer'],['duplicate','Dupliquer'],['rotate','Rotation'],['cut','Découper'],['undo','Annuler'],['delete','Supprimer'],['ai','Gemini']];
+const tools2=[['select','Sélection'],['move','Déplacer'],['add','Composants'],['wire','Câbler'],['delete','Effacer'],['undo','Annuler'],['ai','Gemini']];
+function buildTools(){
+ const nav=$('#tools');nav.innerHTML='';
+ (mode==='3d'?tools3:tools2).forEach(([id,name])=>{
+  const b=document.createElement('button');
+  b.className='tool'+(tool===id?' active':'');
+  b.innerHTML=icon(id==='duplicate'?'duplicate':id)+'<span>'+name+'</span>';
+  b.onclick=()=>{
+   if(id==='add'){openCatalog();return}
+   if(id==='wire'){tool='wire';buildTools();dock();openWireSettings();return}
+   if(id==='duplicate'){duplicate();return}
+   if(id==='rotate'){if(selected?.userData?.is3d){saveHist();selected.rotation.y+=Math.PI/4;autosave()}else toast('Sélectionne une pièce 3D');return}
+   if(id==='cut'){
+    if(!selected?.userData?.is3d){toast('Sélectionne d’abord une pièce 3D');return}
+    const axis=(prompt('Axe de coupe : x, y ou z','x')||'').toLowerCase();
+    if(!['x','y','z'].includes(axis))return;
+    const side=prompt('Conserver quelle moitié ? gauche/avant/bas = - ; droite/arrière/haut = +','+');
+    if(!side)return;
+    saveHist();const i=({x:0,y:1,z:2})[axis],old=selected.scale.getComponent(i);
+    selected.scale.setComponent(i,old*.5);
+    selected.position.setComponent(i,selected.position.getComponent(i)+(side.startsWith('-')?-.25:.25)*old);
+    autosave();toast('Coupe dimensionnelle appliquée (moitié conservée)');return;
+   }
+   if(id==='ai'){openGemini();return}
+   if(id==='undo'){undo();return}
+   if(id==='delete'&&tool==='delete'){deleteSelected();return}
+   tool=id;linkFrom=null;buildTools();dock();
+  };
+  nav.append(b);
+ });
+}
+function dock(){const d=$('#dock');d.innerHTML='';(mode==='3d'?[['add','＋','Pièces'],['select','◎','Sélection'],['move','✥','Déplacer'],['undo','↶','Annuler'],['ai','✦','Gemini']]:[['add','＋','Pièces'],['wire','⌁','Câbler'],['move','✥','Déplacer'],['undo','↶','Annuler'],['ai','✦','Gemini']]).forEach(([id,s,n])=>{let b=document.createElement('button');b.className='dockbtn'+(tool===id?' active':'');b.innerHTML=`<b style="font-size:19px">${s}</b>${n}`;b.onclick=()=>{if(id==='add')openCatalog();else if(id==='ai')openGemini();else if(id==='undo')undo();else{tool=id;buildTools();dock()}};d.append(b)})}
+function setMode(m){mode=m;selected=null;tool='select';$('.mode [data-mode="3d"]').classList.toggle('active',m==='3d');$('.mode [data-mode="circuit"]').classList.toggle('active',m==='circuit');$('#view3d').style.display=m==='3d'?'block':'none';cv.style.display=m==='circuit'?'block':'none';$('#stageLabel').textContent=m==='3d'?'SCÈNE 3D · UNITÉS DE CONCEPTION':'SCHÉMA ÉLECTRONIQUE · FILS COLORÉS';buildTools();dock();renderInspector();resize()}
+document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+function openCatalog(){const body=$('#sheetBody');$('#sheetTitle').textContent=mode==='3d'?'Bibliothèque de pièces':'Bibliothèque électronique';body.innerHTML='';
+ if(mode==='3d'){body.innerHTML=`<input class="catalog-search" id="searchComp" placeholder="Rechercher une pièce…"><div class="category-strip" id="categories"></div><div class="component-grid" id="compGrid"></div>`;let cat='Toutes';
+ const cats=['Toutes',...new Set(compDefs.map(x=>x[0]))];function show(){const q=$('#searchComp').value.toLowerCase();$('#categories').innerHTML='';cats.forEach(c=>{let b=document.createElement('button');b.textContent=c;b.className=c===cat?'active':'';b.onclick=()=>{cat=c;show()};$('#categories').append(b)});$('#compGrid').innerHTML='';compDefs.filter(x=>(cat==='Toutes'||x[0]===cat)&&(!q||x.slice(1).join(' ').toLowerCase().includes(q))).forEach(([c,t,n,d])=>{let b=document.createElement('button');b.className='comp';b.innerHTML=`<div class="preview">${previewSVG(t)}</div><strong>${n}</strong><small>${d}</small>`;b.onpointerdown=e=>{dragCandidate=t;dragOrigin=[e.clientX,e.clientY];dragMoved=false};
+ b.onclick=()=>{if(dragMoved){dragMoved=false;return}if(mode==='3d'){saveHist();addPart(t)}closeSheet();toast(n+' ajouté à la scène')};$('#compGrid').append(b)})}$('#searchComp').oninput=show;show()}
+ else{body.innerHTML=`<input class="catalog-search" id="searchComp" placeholder="Rechercher parmi les composants…"><div class="category-strip" id="cCategories"></div><div class="component-grid" id="compGrid"></div><p class="sub" id="catalogHint"></p>`;let cat='Tous';
+ const cats=[['Tous','*'],...CAT.map(c=>[c.name,c.id])];
+ const staticItems=Object.entries(ctype).map(([t,a])=>({type:t,label:a[1],sym:a[0],cat:'Base',preview:t}));
+ const dynamicItems=CAT.flatMap(c=>c.items.map(n=>({type:({R:'resistor',C:'capacitor',D:'diode',LED:'led',SW:'switch',PWR:'battery',SNS:'sensor'}[c.id]||'ic'),label:n,sym:c.sym,cat:c.name,preview:({R:'resistor',C:'capacitor',D:'diode',LED:'led',SW:'switch',PWR:'battery',SNS:'sensor'}[c.id]||'ic')})));
+ const all=[...staticItems,...dynamicItems];
+ function show(){const q=$('#searchComp').value.toLowerCase();$('#cCategories').innerHTML='';cats.forEach(([n,id])=>{let b=document.createElement('button');b.textContent=n;b.className=id===cat?'active':'';b.onclick=()=>{cat=id;show()};$('#cCategories').append(b)});$('#compGrid').innerHTML='';const matches=all.filter(a=>(cat==='*'||a.cat===cat||cat==='Base'&&a.cat==='Base')&&(!q||a.label.toLowerCase().includes(q)));matches.slice(0,120).forEach(a=>{let b=document.createElement('button');b.className='comp';b.innerHTML=`<div class="preview">${previewSVG(a.preview)}</div><strong>${a.label}</strong><small>${a.cat} · ${a.sym}</small>`;b.onpointerdown=e=>{dragCandidate=a.type;dragOrigin=[e.clientX,e.clientY];dragMoved=false;window.pendingCircuitLabel=a.label};
+ b.onclick=()=>{if(dragMoved){dragMoved=false;return}window.pendingCircuitType=a.type;window.pendingCircuitLabel=a.label;tool='add';closeSheet();toast('Touche le schéma pour placer '+a.label);buildTools()};$('#compGrid').append(b)});$('#catalogHint').textContent=matches.length>120?matches.length+' composants trouvés · les 120 premiers sont affichés, précise ta recherche.':matches.length+' composants trouvés.'}
+ $('#searchComp').oninput=show;show()}
+ $('#sheet').classList.add('open')}
+function previewSVG(t){const colors={bearing:'#9daebf',nut:'#aebdcb',spring:'#b9c5d2',fan:'#6797b9',pcb:'#328d70',switch:'#aebdcb',relay:'#315a8b',resistor:'#d2ad79',capacitor:'#315a8b',led:'#fa5366',diode:'#aebdcb',battery:'#2c9b69',motor:'#9daebf',gear:'#9daebf',screw:'#aebdcb',plate:'#328d70',pipe:'#9eb2c6',bracket:'#9eb2c6',box:'#6797b9',cylinder:'#6797b9',sphere:'#6797b9'};const c=colors[t]||'#76a6d4';return `<svg viewBox="0 0 90 52"><defs><linearGradient id="g${t}" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fff" stop-opacity=".45"/><stop offset="1" stop-color="${c}"/></linearGradient></defs>${t==='resistor'?`<path d="M5 27H28M62 27H85" stroke="#b9c5d2" stroke-width="3"/><rect x="27" y="16" width="36" height="22" rx="8" fill="url(#g${t})" stroke="#f5d4aa"/><path d="M36 17v20m8-20v20m8-20v20" stroke="#8d4834" stroke-width="3"/>`:t==='capacitor'?`<path d="M20 27H38m14 0h18" stroke="#cbd6e2" stroke-width="3"/><rect x="37" y="8" width="16" height="37" rx="6" fill="url(#g${t})" stroke="#8fa8c1"/><path d="M39 12h12" stroke="#e9f4ff" stroke-width="2"/>`:t==='led'?`<path d="M24 39V27h42v12" fill="${c}" stroke="#ffb4bc"/><path d="M18 39h54" stroke="#b9c5d2" stroke-width="3"/><path d="M30 25 45 8l15 17z" fill="${c}" stroke="#ffc3ca"/><path d="m60 9 8-6m-7 13 11-1" stroke="#ffb454" stroke-width="2"/>`:t==='gear'?`<circle cx="45" cy="27" r="17" fill="${c}" stroke="#e4edf7" stroke-width="2"/><circle cx="45" cy="27" r="7" fill="#1b2a3c" stroke="#d5e0ed" stroke-width="2"/>${Array.from({length:8},(_,i)=>{let a=i*Math.PI/4;return `<rect x="${41+Math.cos(a)*19}" y="${23+Math.sin(a)*19}" width="8" height="8" rx="1" fill="${c}" transform="rotate(${i*45} ${45+Math.cos(a)*19} ${27+Math.sin(a)*19})"/>`}).join('')}`:`<rect x="20" y="8" width="50" height="36" rx="${t==='sphere'?18:5}" fill="url(#g${t})" stroke="#d8e5f2" stroke-width="1.5"/><path d="M20 18h50M30 8v36" stroke="#ffffff" stroke-opacity=".3"/>`}</svg>`}
+function closeSheet(){$('#sheet').classList.remove('open')}
+$('#closeSheet').onclick=closeSheet;
+function openProject(){const body=$('#sheetBody');$('#sheetTitle').textContent='Gestion du projet';body.innerHTML=`<p class="sub">Le projet est enregistré automatiquement sur cet appareil.</p><div class="actionrow"><button class="action primary" id="saveNow">Enregistrer maintenant</button><button class="action" id="exportProject">Exporter le projet JSON</button></div><div class="actionrow"><button class="action" id="importProject">Importer un projet</button><button class="action danger" id="newProject">Nouveau projet</button></div><input type="file" id="projectFile" accept=".json,application/json" hidden><p class="sub">Formats de travail : JSON projet, OBJ et STL pour la scène 3D, PNG pour le schéma électronique.</p>`;$('#saveNow').onclick=()=>{autosave();toast('Projet enregistré')};$('#exportProject').onclick=()=>download('structura-v3.json',JSON.stringify({version:3,scene:snapshot3(),circuit},null,2),'application/json');$('#importProject').onclick=()=>$('#projectFile').click();$('#projectFile').onchange=async e=>{try{let o=JSON.parse(await e.target.files[0].text());load3(o.scene||[]);loadCircuit(o.circuit||{parts:[],wires:[]});toast('Projet importé')}catch{toast('Fichier projet invalide')}};$('#newProject').onclick=()=>{if(confirm('Effacer la scène et le schéma actuels ?')){world.clear();circuit={parts:[],wires:[]};selected=null;drawCircuit();renderInspector();autosave()}};$('#sheet').classList.add('open')}
+$('#menuBtn').onclick=openProject;$('#saveBtn').onclick=()=>{autosave();toast('Sauvegarde automatique effectuée')};
+$('#viewBtn').onclick=()=>{camera.position.set(7,6,8);controls.target.set(0,1,0);controls.update()};
+$('#gridBtn').onclick=()=>{gridOn=!gridOn;grid.visible=gridOn};$('#zoomBtn').onclick=()=>{camera.position.multiplyScalar(.82);controls.update()};
+function download(name,data,type){const blob=new Blob([data],{type}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function openGemini(){const body=$('#sheetBody');$('#sheetTitle').textContent='Assistant Gemini';body.innerHTML=`<p class="sub">Décris ton invention. Gemini pourra analyser le projet courant et te proposer des étapes, composants et connexions.</p><div class="field"><label>Clé API Gemini</label><input id="gemKey" type="password" placeholder="Colle ta clé API Google AI Studio" value="${store.get('gemini.key')||''}"></div><div class="field"><label>Ta demande</label><textarea id="gemPrompt" rows="4" placeholder="Ex. : Aide-moi à concevoir une petite perceuse électrique alimentée par batterie…"></textarea></div><button class="action primary" id="askGemini">Analyser avec Gemini</button><div class="divider"></div><div id="gemReply" class="sub">L'assistant répondra ici. Une connexion Internet et une clé API Gemini sont nécessaires.</div>`;$('#gemKey').onchange=e=>store.set('gemini.key',e.target.value.trim());$('#askGemini').onclick=async()=>{const key=$('#gemKey').value.trim(),prompt=$('#gemPrompt').value.trim(),reply=$('#gemReply');if(!key||!prompt){toast('Ajoute la clé et ta demande');return}store.set('gemini.key',key);reply.textContent='Gemini analyse le projet…';const context=JSON.stringify({scene:snapshot3(),circuit});try{const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key='+encodeURIComponent(key),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:'Tu es un ingénieur pédagogique en conception mécanique, électronique et fabrication. Réponds en français clair. Analyse les éléments du projet transmis, signale les risques électriques et mécaniques, ne prétends pas simuler physiquement ce qui ne l’est pas.'}]},contents:[{parts:[{text:'Projet actuel (JSON): '+context+'\\nDemande: '+prompt}]}]})});const j=await r.json();if(!r.ok)throw new Error(j.error?.message||'Erreur API');reply.textContent=j.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('\\n')||'Réponse vide'}catch(e){reply.textContent='Impossible de joindre Gemini : '+e.message+' Vérifie la clé API et la connexion.'}};$('#sheet').classList.add('open')}
+function openWireSettings(){const body=$('#sheetBody');$('#sheetTitle').textContent='Couleurs des connexions';body.innerHTML=`<p class="sub">Choisis la couleur du prochain fil. Convention indicative : rouge pour alimentation positive, noir pour masse, bleu/vert pour signaux.</p><div class="wire-colors">${palette.map(c=>`<button class="wire-color ${c===wireColor?'active':''}" data-c="${c}" style="background:${c}"></button>`).join('')}</div><p class="sub" style="margin-top:15px">La couleur est enregistrée avec chaque connexion.</p>`;body.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{wireColor=b.dataset.c;openWireSettings()});$('#sheet').classList.add('open')}
+$('#stageLabel').onclick=()=>mode==='circuit'&&openWireSettings();
+function restore(){try{const p=JSON.parse(store.get('structura.v3.project')||'null');if(p){load3(p.scene||[]);loadCircuit(p.circuit||{parts:[],wires:[]});}}catch(e){console.warn('Projet sauvegardé illisible',e)}}
+document.addEventListener('pointermove',e=>{if(dragCandidate&&dragOrigin&&Math.hypot(e.clientX-dragOrigin[0],e.clientY-dragOrigin[1])>9)dragMoved=true});
+document.addEventListener('pointerup',e=>{
+ if(!dragCandidate||!dragMoved||!e.target.closest('.stage')){dragCandidate=null;dragOrigin=null;return}
+ if(mode==='3d'){
+  const rect=renderer.domElement.getBoundingClientRect(),v=new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1),ray=new THREE.Raycaster();
+  ray.setFromCamera(v,camera);const point=new THREE.Vector3();ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0,1,0),0),point);
+  saveHist();addPart(dragCandidate,point);toast('Pièce déposée dans la scène');
+ }else{
+  const [x,y]=pos2(e);saveCircuitHist();const def=ctype[dragCandidate];if(def){circuit.parts.push({id:nextId++,type:dragCandidate,x,y,label:window.pendingCircuitLabel||def[1]});window.pendingCircuitLabel=null;drawCircuit();autosave();toast(def[1]+' déposé sur le schéma')}
+ }
+ closeSheet();dragCandidate=null;dragOrigin=null;dragMoved=false;
+});
+function init(){// objets de démonstration légers pour découvrir le rendu
+ if(!store.get('structura.v3.project')){const a=addPart('plate',new THREE.Vector3(0,0,0));const b=addPart('motor',new THREE.Vector3(0,.12,0));b.scale.set(.72,.72,.72);autosave()}
+ restore();buildTools();dock();renderInspector();resize()}
+init();
+</script></body></html>
